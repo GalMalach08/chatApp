@@ -15,6 +15,9 @@ app.use(express.json());
 const userRoute = require("./routes/userRoute");
 app.use("/api/user", userRoute);
 
+const chatRoute = require("./routes/chatRoute");
+app.use("/api/chat", chatRoute);
+
 app.use(notFound);
 app.use(errorHandler);
 

@@ -1,5 +1,4 @@
-const asyncHandler = require("express-async-handler");
-const User = require("../models/userModel");
+const User = require("../db/models/userModel");
 
 // Signup user
 const signupUser = async (user) => {
@@ -33,4 +32,16 @@ const loginUser = async (user) => {
   else throw new Error("Invalid email or password");
 };
 
-module.exports = { signupUser, loginUser };
+// Search user
+const searchUser = async (keyword, id) => {
+  const user = await User.find({
+    $or: [
+      { name: { $regex: keyword, $options: "i" } },
+      { email: { $regex: keyword, $options: "i" } },
+    ],
+  }).find({ _id: { $ne: id } });
+  if (user) return user;
+  else throw new Error("User not found");
+};
+
+module.exports = { signupUser, loginUser, searchUser };

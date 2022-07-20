@@ -27,4 +27,17 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { signupUser, loginUser };
+// Search user
+const searchUser = asyncHandler(async (req, res) => {
+  try {
+    const keyword = req.query.search || "";
+    const users = await userService.searchUser(keyword, req.user._id);
+    res.status(201).send({
+      users: users.map((user) => filterUserProps(user)),
+    });
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
+
+module.exports = { signupUser, loginUser, searchUser };
