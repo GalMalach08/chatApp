@@ -1,11 +1,16 @@
 import React from "react";
-import { Box } from "@chakra-ui/layout";
-import "./styles.css";
+// Components
 import SingleChat from "./SingleChat";
+// Context
 import { useChatContext } from "../../context/ChatProvider";
-import { Button, Icon } from "@chakra-ui/react";
+// Chakra UI
+import { Box } from "@chakra-ui/layout";
+// Style
+import "./styles.css";
 
-const ChatBox = ({ fetchAgain, setFetchAgain }) => {
+// Chat messages section of the app
+const ChatBox = () => {
+  // Global state
   const { selectedChat } = useChatContext();
 
   return (
@@ -31,7 +36,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }) => {
         justifyContent="space-between"
         alignItems="center"
       ></Box>
-      <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+      <SingleChat />
     </Box>
   );
 };

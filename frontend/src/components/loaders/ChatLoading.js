@@ -1,10 +1,12 @@
-import { Skeleton, Stack } from "@chakra-ui/react";
 import React from "react";
+// Chakra UI
+import { Skeleton, Stack } from "@chakra-ui/react";
 
+// Skeleton loader
 const ChatLoading = () => {
   return (
     <Stack>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
+      {[...Array(10).keys()].map((item) => (
         <Skeleton height="45px" key={item} />
       ))}
     </Stack>

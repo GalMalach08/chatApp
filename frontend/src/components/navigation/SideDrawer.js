@@ -1,8 +1,16 @@
 import React, { useRef, useState } from "react";
+// Components
+import ChatLoading from "../loaders/ChatLoading";
+import UserListItem from "../chat/UserListItem";
+// Utils
+import { config } from "../../utils/userUtils";
+// Context
+import { useChatContext } from "../../context/ChatProvider";
+import { toastify } from "../../utils/notificationUtils";
+// Chakra UI
 import {
   Drawer,
   DrawerBody,
-  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
@@ -10,13 +18,8 @@ import {
   Button,
   Input,
   Box,
-  useToast,
   Spinner,
 } from "@chakra-ui/react";
-import ChatLoading from "../loaders/ChatLoading";
-import UserListItem from "../chat/UserListItem";
-import { config } from "../../utils/userUtils";
-import { useChatContext } from "../../context/ChatProvider";
 
 const SideDrawer = ({
   isOpen,
@@ -27,11 +30,13 @@ const SideDrawer = ({
   searchResult,
   loading,
 }) => {
+  // Local states
   const [loadingChat, setLoadingChat] = useState(false);
   const { setSelectedChat, chats, setChats } = useChatContext();
-  const toast = useToast();
+  // Ref
   const btnRef = useRef();
 
+  // Create chat that not excist or access chat that excist
   const createOrAccessChat = async (userId) => {
     try {
       setLoadingChat(true);
@@ -49,13 +54,7 @@ const SideDrawer = ({
       setLoadingChat(false);
       onClose();
     } catch (err) {
-      toast({
-        title: err.message,
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-        position: "top-left",
-      });
+      toastify(err.message, "error", "top-left");
       setLoadingChat(false);
     }
   };
@@ -70,8 +69,9 @@ const SideDrawer = ({
       <DrawerOverlay />
       <DrawerContent>
         <DrawerCloseButton />
+        {/* Drawer title */}
         <DrawerHeader borderBottomWidth="1px">Search Users</DrawerHeader>
-
+        {/* Drawer body */}
         <DrawerBody>
           <Box style={{ display: "flex" }} pb={2}>
             <Input

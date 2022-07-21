@@ -1,4 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+// Components
+import UserListItem from "../chat/UserListItem";
+// Utils
+import { config, UserBadgeItem } from "../../utils/userUtils";
+import { toastify } from "../../utils/notificationUtils";
+// Context
+import { useChatContext } from "../../context/ChatProvider";
+// Chakra UI
 import {
   Modal,
   ModalOverlay,
@@ -8,31 +16,27 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  IconButton,
   Button,
-  Image,
-  Text,
-  useToast,
+  Spinner,
   Input,
   Box,
-  FormLabel,
   FormControl,
 } from "@chakra-ui/react";
-import { ViewIcon } from "@chakra-ui/icons";
-import { config, UserBadgeItem } from "../../utils/userUtils";
-import UserListItem from "../chat/UserListItem";
-import { useChatContext } from "../../context/ChatProvider";
 
+// Modal that allowed to create new group
 const CreateGroupModal = ({ children }) => {
+  // Local states
   const [chatName, setChatName] = useState("");
   const [userInGroup, setUserInGroup] = useState("");
   const [usersInGroup, setUsersInGroup] = useState([]);
   const [usersOptions, setUsersOptions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // Global states
   const { user, setSelectedChat, setChats } = useChatContext();
-  const toast = useToast();
+  // Modal disclosure
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // Search for all the users that match the search value
   const searchUsers = async (e) => {
     try {
       setLoading(true);
@@ -53,30 +57,27 @@ const CreateGroupModal = ({ children }) => {
     }
   };
 
+  // Add user to the group's users list
   const addUserToGroup = (user) => {
     const isInGroup = usersInGroup.find((item) => item._id === user._id);
     if (isInGroup) {
-      toast({
-        title: "You added the user to the group",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
+      toastify("You already added this user to the group", "error");
     } else setUsersInGroup((prevState) => [...prevState, user]);
   };
 
+  // Delete user from the group's users list
+  const deleteUserFromGroup = (userId) => {
+    setUsersInGroup((prevState) =>
+      prevState.filter((item) => item._id !== userId)
+    );
+  };
+
+  // Create the group in the data base
   const createGroup = async () => {
     try {
       setLoading(true);
       if (usersInGroup.length < 2) {
-        toast({
-          title: "You Need minimum 3 users to create a group",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify("You Need minimum 3 users to create a group", "error");
       } else {
         const users = usersInGroup.map((item) => item._id);
         users.push(user._id);
@@ -89,33 +90,15 @@ const CreateGroupModal = ({ children }) => {
         setSelectedChat(chat);
         setChats((prevState) => [...prevState, chat]);
         onClose();
-        toast({
-          title: "The chat has created",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify("The chat has created", "success");
         setLoading(false);
         setChatName("");
         setUsersInGroup([]);
       }
     } catch (err) {
-      toast({
-        title: err.message,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom",
-      });
+      toastify(err.message, "error");
       setLoading(false);
     }
-  };
-
-  const deleteUserFromGroup = (userId) => {
-    setUsersInGroup((prevState) =>
-      prevState.filter((item) => item._id !== userId)
-    );
   };
 
   return (
@@ -125,6 +108,7 @@ const CreateGroupModal = ({ children }) => {
       <Modal size="lg" onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>
+          {/* Modal title */}
           <ModalHeader
             fontSize="40px"
             fontFamily="Work sans"
@@ -134,29 +118,35 @@ const CreateGroupModal = ({ children }) => {
             Create Group Chat
           </ModalHeader>
           <ModalCloseButton />
+
+          {/* Modal Body */}
           <ModalBody
             style={{ display: "flex" }}
             flexDir="column"
             alignItems="center"
           >
+            {/* Chat name */}
             <FormControl isRequired m={1}>
               <Input
                 value={chatName}
-                type="email"
+                type="text"
                 placeholder="Chat Name"
                 onChange={(e) => setChatName(e.target.value)}
               />
             </FormControl>
+
+            {/* Users */}
             <FormControl isRequired m={1}>
               <Input
                 value={userInGroup}
-                type="email"
+                type="text"
                 placeholder="Add Users eg: John,Gal"
                 onChange={searchUsers}
               />
             </FormControl>
 
-            {loading && "loading..."}
+            {/* Users that added to the group */}
+            {loading && <Spinner m={2} />}
             <Box w="100%" d="flex" flexWrap="wrap">
               {usersInGroup.map((user) => (
                 <UserBadgeItem
@@ -167,6 +157,8 @@ const CreateGroupModal = ({ children }) => {
                 />
               ))}
             </Box>
+
+            {/* Users that match the search */}
             <Box
               w="100%"
               h={usersOptions.length > 3 ? "250px" : ""}
@@ -181,6 +173,8 @@ const CreateGroupModal = ({ children }) => {
               ))}
             </Box>
           </ModalBody>
+
+          {/* Modal footer */}
           <ModalFooter>
             <Button
               isDisabled={!chatName || usersInGroup.length < 1 ? true : false}

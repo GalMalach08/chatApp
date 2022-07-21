@@ -1,4 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
+// React router dom
+import { useHistory } from "react-router-dom";
+// Components
+import ProfileModal from "../modals/ProfileModal";
+import SideDrawer from "./SideDrawer";
+// Utils
+import { config } from "../../utils/userUtils";
+import { toastify } from "../../utils/notificationUtils";
+// Context
+import { useChatContext } from "../../context/ChatProvider";
+// Chakra UI
 import {
   Button,
   useDisclosure,
@@ -11,38 +22,30 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
-  useToast,
   Avatar,
 } from "@chakra-ui/react";
 import { SearchIcon, BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 
-import { config } from "../../utils/userUtils";
-import { useChatContext } from "../../context/ChatProvider";
-import ProfileModal from "../modals/ProfileModal";
-import { useHistory } from "react-router-dom";
-import SideDrawer from "./SideDrawer";
-
+// The header of the app
 const Header = () => {
+  // Local states
   const [searchValue, setSearchValue] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
+  // Global states
   const { user, setUserState } = useChatContext();
+  // Utils
   const history = useHistory();
+  // Modal disclosure
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
 
+  // Search for all the users that match the search value
   const searchUsers = async () => {
     try {
       setLoading(true);
       if (searchValue.length < 2) {
         setLoading(false);
-        return toast({
-          title: "Enter Minimum 2 characters",
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-          position: "top-left",
-        });
+        toastify("Enter Minimum 2 characters", "warning", "top-left");
       }
       const res = await fetch(`/api/user/?search=${searchValue}`, {
         method: "GET",
@@ -57,6 +60,7 @@ const Header = () => {
     }
   };
 
+  // Logout the user
   const logOut = () => {
     setUserState("");
     history.push("/");
@@ -74,6 +78,7 @@ const Header = () => {
         p="5px 10px 5px 10px"
         borderWidth="5px"
       >
+        {/* Left side of the header */}
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button variant="ghost" onClick={onOpen}>
             <Icon>
@@ -84,10 +89,13 @@ const Header = () => {
             </Text>
           </Button>
         </Tooltip>
+
+        {/* Header title */}
         <Text fontSize="2xl" fontFamily="Work sans">
           Talk-A-Tive
         </Text>
 
+        {/* Right side of the header */}
         <div>
           <Menu>
             <MenuButton p={1}>
@@ -95,6 +103,8 @@ const Header = () => {
             </MenuButton>
             <MenuList></MenuList>
           </Menu>
+
+          {/* Account button */}
           <Menu>
             <MenuButton
               as={Button}
@@ -117,6 +127,8 @@ const Header = () => {
             </MenuList>
           </Menu>
         </div>
+
+        {/* SideDrawer component */}
         <SideDrawer
           isOpen={isOpen}
           onClose={onClose}

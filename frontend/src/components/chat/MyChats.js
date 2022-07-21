@@ -7,15 +7,16 @@ import { useChatContext } from "../../context/ChatProvider";
 // Utils
 import { getSender } from "../../utils/chatUtils";
 import { config } from "../../utils/userUtils";
+import { toastify } from "../../utils/notificationUtils";
 // Chakra UI
-import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Stack, Text } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 
+// Chat list section off the app
 const MyChats = () => {
   const [loggedUser, setloggeduser] = useState("");
   const { selectedChat, setSelectedChat, user, chats, setChats } =
     useChatContext();
-  const toast = useToast();
 
   // Get all the users chats
   const getChats = async () => {
@@ -27,18 +28,16 @@ const MyChats = () => {
       const { chats } = await res.json();
       setChats(chats);
     } catch (error) {
-      toast({
-        title: "Error Occured!",
-        description: "Failed to Load the chats, Try to refresh the page",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom-left",
-      });
+      toastify(
+        "Error Occured!",
+        "error",
+        "bottom-left",
+        "Failed to Load the chats, Try to refresh the page"
+      );
     }
   };
 
-  // Activate the getchats func to get all the chats on page load
+  // Activate the get chats func to get all the chats on page load
   useEffect(() => {
     setloggeduser(user);
     getChats();

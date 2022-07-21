@@ -1,27 +1,26 @@
 import React from "react";
-import { useChatContext } from "../../context/ChatProvider";
-import {
-  Box,
-  Button,
-  Icon,
-  IconButton,
-  Stack,
-  Text,
-  useToast,
-} from "@chakra-ui/react";
-import { getFullSender, getSender } from "../../utils/chatUtils";
-import { AiFillEye } from "react-icons/ai";
-
-import { ArrowBackIcon } from "@chakra-ui/icons";
+// Components
 import UpdateGroupModal from "../modals/UpdateGroupModal";
 import ProfileModal from "../modals/ProfileModal";
+// Utils
+import { getFullSender, getSender } from "../../utils/chatUtils";
+// Context
+import { useChatContext } from "../../context/ChatProvider";
+// Chakra UI
+import { Box, Button, Icon, IconButton, Text } from "@chakra-ui/react";
+import { ArrowBackIcon } from "@chakra-ui/icons";
+import { AiFillEye } from "react-icons/ai";
+
+// Shows single chat
 const SingleChat = () => {
+  // Global state
   const { user, selectedChat, setSelectedChat } = useChatContext();
 
   return (
     <>
       {selectedChat ? (
         <>
+          {/* If there is selected Chat */}
           <Text
             fontSize={{ base: "28px", md: "30px" }}
             pb={3}
@@ -72,16 +71,19 @@ const SingleChat = () => {
           </Box>
         </>
       ) : (
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          h="100%"
-        >
-          <Text fontSize="3xl" pb={3} fontFamily="Work sans">
-            Click on a user to start chatting
-          </Text>
-        </Box>
+        <>
+          {/* If there is not selected chat */}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            h="100%"
+          >
+            <Text fontSize="3xl" pb={3} fontFamily="Work sans">
+              Click on a user to start chatting
+            </Text>
+          </Box>
+        </>
       )}
     </>
   );

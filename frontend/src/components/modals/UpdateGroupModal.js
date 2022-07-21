@@ -1,4 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+// Components
+import UserListItem from "../chat/UserListItem";
+// Utils
+import { config, UserBadgeItem } from "../../utils/userUtils";
+import { toastify } from "../../utils/notificationUtils";
+// Context
+import { useChatContext } from "../../context/ChatProvider";
+// Chakra UI
 import {
   Modal,
   ModalOverlay,
@@ -8,48 +16,38 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  IconButton,
   Button,
-  Image,
-  Text,
   useToast,
   Input,
   Box,
-  FormLabel,
   FormControl,
 } from "@chakra-ui/react";
-import { config, UserBadgeItem } from "../../utils/userUtils";
-import UserListItem from "../chat/UserListItem";
-import { useChatContext } from "../../context/ChatProvider";
 
+// Modal that allowed to update excisting group
 const UpdateGroupModal = ({ children }) => {
+  // Local states
   const [chatName, setChatName] = useState("");
   const [userInGroup, setUserInGroup] = useState("");
   const [usersOptions, setUsersOptions] = useState([]);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [loading, setLoading] = useState(false);
-  const toast = useToast();
-
-  const { selectedChat, setChats, setSelectedChat, user } = useChatContext();
   const [usersInGroup, setUsersInGroup] = useState([]);
+  const [loading, setLoading] = useState(false);
+  // Global states
+  const { selectedChat, setChats, setSelectedChat, user } = useChatContext();
+  // Modal disclosure
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // delete user badge
   const deleteUserFromGroup = (userId) => {
     // If the logged in user is not the admin
-    if (selectedChat.groupAdmin._id !== user._id) {
-      return toast({
-        title: "Only admins can delete fron the group",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom",
-      });
-    }
+    if (selectedChat.groupAdmin._id !== user._id)
+      return toastify("Only admins can delete fron the group", "error");
     setUsersInGroup((prevState) =>
       prevState.filter((item) => item._id !== userId)
     );
   };
 
+  // Search for all the users that match the search value
   const searchUsers = async (e) => {
     try {
       setLoading(true);
@@ -65,11 +63,11 @@ const UpdateGroupModal = ({ children }) => {
       }
       setLoading(false);
     } catch (err) {
-      console.log(err);
       setLoading(false);
     }
   };
 
+  // Update the group in the database
   const updateGroup = async () => {
     try {
       setLoading(true);
@@ -93,13 +91,7 @@ const UpdateGroupModal = ({ children }) => {
       setSelectedChat(chat);
       setLoading(false);
       closeModal();
-      toast({
-        title: "Group has been updated successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
+      toastify("Group has been updated successfully", "success");
     } catch (err) {
       console.log(err);
     }
@@ -107,21 +99,17 @@ const UpdateGroupModal = ({ children }) => {
   const addUserToGroup = (user) => {
     const isInGroup = usersInGroup.find((item) => item._id === user._id);
     if (isInGroup) {
-      toast({
-        title: "You added the user to the group",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
+      toastify("You already added the user to the group", "error");
     } else setUsersInGroup((prevState) => [...prevState, user]);
   };
 
+  // Close the modal
   const closeModal = () => {
     setUsersInGroup(selectedChat.users);
     onClose();
   };
 
+  // Update the database that the connected user left the group
   const leaveGroup = async () => {
     try {
       setDeleteLoading(true);
@@ -141,19 +129,13 @@ const UpdateGroupModal = ({ children }) => {
       setDeleteLoading(false);
       setSelectedChat("");
       closeModal();
-      toast({
-        title: "You leaved the group successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
+      toastify("You leaved the group successfully", "success");
     } catch (err) {
-      console.log(err);
       setDeleteLoading(false);
     }
   };
 
+  // Runs every time the selected chat changed to reset the values
   useEffect(() => {
     if (selectedChat) {
       setUsersInGroup(selectedChat.users);
@@ -168,6 +150,7 @@ const UpdateGroupModal = ({ children }) => {
       <Modal size="lg" onClose={closeModal} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent>
+          {/* Modal title- chat name */}
           <ModalHeader
             fontSize="40px"
             fontFamily="Work sans"
@@ -177,35 +160,39 @@ const UpdateGroupModal = ({ children }) => {
             {selectedChat.chatName}
           </ModalHeader>
           <ModalCloseButton />
+
+          {/* Modal Body */}
           <ModalBody
             style={{ display: "flex" }}
             flexDir="column"
             alignItems="center"
           >
-            {/* {loading && "loading..."} */}
-
             <Box w="100%" my={3}>
+              {/* Chat name */}
               <FormControl mb={3}>
                 <Input
                   value={chatName}
-                  type="email"
+                  type="text"
                   placeholder="Chat Name"
                   onChange={(e) => setChatName(e.target.value)}
                 />
               </FormControl>
 
+              {/* Users */}
               <FormControl>
                 <Input
                   isDisabled={
                     user._id === selectedChat.groupAdmin._id ? false : true
                   }
                   value={userInGroup}
-                  type="email"
+                  type="text"
                   placeholder="Add Users eg: John,Gal"
                   onChange={searchUsers}
                 />
               </FormControl>
             </Box>
+
+            {/* Users that added to the group */}
             <Box w="100%" d="flex" flexWrap="wrap">
               {usersInGroup.map((user) => (
                 <UserBadgeItem
@@ -217,6 +204,7 @@ const UpdateGroupModal = ({ children }) => {
               ))}
             </Box>
 
+            {/* Users that match the search */}
             <Box
               w="100%"
               overflow="scroll"
@@ -231,6 +219,8 @@ const UpdateGroupModal = ({ children }) => {
               ))}
             </Box>
           </ModalBody>
+
+          {/* Modal footer */}
           <ModalFooter display="flex" justifyContent="space-around">
             <Button
               isDisabled={!chatName || usersInGroup.length < 1 ? true : false}

@@ -1,4 +1,5 @@
 import React from "react";
+// Chakra UI
 import {
   Modal,
   ModalOverlay,
@@ -10,13 +11,13 @@ import {
   useDisclosure,
   IconButton,
   Button,
-  Lorem,
   Image,
   Text,
 } from "@chakra-ui/react";
 import { ViewIcon } from "@chakra-ui/icons";
 
 const ProfileModel = ({ user, children }) => {
+  // Modal disclosure
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -33,6 +34,7 @@ const ProfileModel = ({ user, children }) => {
       <Modal size="lg" onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent h="410px">
+          {/* Modal title- user name*/}
           <ModalHeader
             fontSize="40px"
             fontFamily="Work sans"
@@ -42,18 +44,23 @@ const ProfileModel = ({ user, children }) => {
             {user.name}
           </ModalHeader>
           <ModalCloseButton />
+
+          {/* Modal Body */}
           <ModalBody
             style={{ display: "flex" }}
             flexDir="column"
             alignItems="center"
             justifyContent="space-between"
           >
+            {/* User image */}
             <Image
               borderRadius="full"
               boxSize="150px"
               src={user.pic}
               alt={user.name}
             />
+
+            {/* User email */}
             <Text
               fontSize={{ base: "28px", md: "30px" }}
               fontFamily="Work sans"
@@ -61,6 +68,8 @@ const ProfileModel = ({ user, children }) => {
               Email: {user.email}
             </Text>
           </ModalBody>
+
+          {/* Modal footer */}
           <ModalFooter>
             <Button onClick={onClose}>Close</Button>
           </ModalFooter>

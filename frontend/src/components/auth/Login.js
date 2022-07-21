@@ -1,49 +1,49 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
+// React router dom
+import { useHistory } from "react-router-dom";
+// Utils
+import { config } from "../../utils/userUtils";
+import { toastify } from "../../utils/notificationUtils";
+// Context
+import { useChatContext } from "../../context/ChatProvider";
+// Chakra UI
 import { Button } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { VStack } from "@chakra-ui/layout";
-import { useHistory } from "react-router-dom";
-import { config } from "../../utils/userUtils";
-import { useToast } from "@chakra-ui/react";
-import { useChatContext } from "../../context/ChatProvider";
 
 const Login = () => {
+  //Local states
   const [show, setShow] = useState(false);
-  const handleClick = () => setShow(!show);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  // Global states
   const { setUserState } = useChatContext();
-  const toast = useToast();
 
   const history = useHistory();
 
-  const submitHandler = async () => {
+  // Handle the show of the password
+  const handleClick = () => setShow(!show);
+
+  // Log in the user
+  const submitHandler = async (
+    e,
+    userEmail = email,
+    userPassword = password
+  ) => {
     try {
       setLoading(true);
       const res = await fetch("/api/user/login", {
         method: "POST",
         ...config,
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: userEmail, password: userPassword }),
       });
       const { error, user } = await res.json();
       if (error) {
-        toast({
-          title: error,
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify(error, "error");
       } else {
-        toast({
-          title: "Registration successful",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify("Registration successful", "success");
         setUserState(user);
         localStorage.setItem("user", JSON.stringify(user));
         history.push("/chats");
@@ -102,11 +102,8 @@ const Login = () => {
         variant="solid"
         colorScheme="red"
         width="100%"
-        onClick={() => {
-          setEmail("guest@example.com");
-          setPassword("123456");
-          submitHandler();
-        }}
+        onClick={(e) => submitHandler(e, "guest@example.com", "123456")}
+        isLoading={loading}
       >
         Get Guest User Credentials
       </Button>

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
+// React router dom
 import { useHistory } from "react-router-dom";
+// Utils
+import { config } from "../../utils/userUtils";
+import { toastify } from "../../utils/notificationUtils";
+// Context
+import { useChatContext } from "../../context/ChatProvider";
+// Chakra UI
 import {
   Button,
   FormControl,
@@ -8,14 +15,11 @@ import {
   InputGroup,
   InputRightElement,
   VStack,
-  useToast,
-  FormHelperText,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import { config } from "../../utils/userUtils";
-import { useChatContext } from "../../context/ChatProvider";
 
 const Signup = () => {
+  //Local states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,22 +29,17 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Global states
   const { setUserState } = useChatContext();
-
-  const toast = useToast();
+  // Utils
   const history = useHistory();
 
+  // Handle the image- upload to cloudinary and make it a string
   const postDetails = async (pic) => {
     try {
       setLoading(true);
       if (pic === undefined) {
-        toast({
-          title: "Please select an Image",
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify("Please select an Image", "error");
         setLoading(false);
         return;
       }
@@ -60,13 +59,7 @@ const Signup = () => {
         setPic(result.url.toString());
         setLoading(false);
       } else {
-        toast({
-          title: "Please select a valid Image",
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify("Please select a valid Image", "error");
         setLoading(false);
         return;
       }
@@ -76,6 +69,7 @@ const Signup = () => {
     }
   };
 
+  // Sign up the user
   const submitHandler = async () => {
     try {
       setLoading(true);
@@ -86,23 +80,10 @@ const Signup = () => {
       });
       const { error, user } = await res.json();
       if (error) {
-        toast({
-          title: error,
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify(error, "error");
       } else {
-        toast({
-          title: "Registration successful",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
+        toastify("Registration successful", "success");
         setUserState(user);
-
         localStorage.setItem("user", JSON.stringify(user));
         history.push("/chats");
       }
@@ -113,6 +94,7 @@ const Signup = () => {
     }
   };
 
+  // Check if the passwords are match
   useEffect(() => {
     password === confirmPassword
       ? setPasswordError("")
