@@ -13,6 +13,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { config } from "../../utils/userUtils";
+import { useChatContext } from "../../context/ChatProvider";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -24,6 +25,8 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { setUserState } = useChatContext();
+
   const toast = useToast();
   const history = useHistory();
 
@@ -79,7 +82,7 @@ const Signup = () => {
       const res = await fetch("/api/user/signup", {
         method: "POST",
         ...config,
-        body: JSON.stringify({ name, email, password, pic }),
+        body: JSON.stringify({ name, email, password, ...(pic && { pic }) }),
       });
       const { error, user } = await res.json();
       if (error) {
@@ -98,6 +101,8 @@ const Signup = () => {
           isClosable: true,
           position: "bottom",
         });
+        setUserState(user);
+
         localStorage.setItem("user", JSON.stringify(user));
         history.push("/chats");
       }
@@ -189,7 +194,7 @@ const Signup = () => {
       </FormControl>
 
       {/* Picture */}
-      <FormControl id="pic" isRequired style={{ marginTop: 15 }}>
+      <FormControl id="pic" style={{ marginTop: 15 }}>
         <FormLabel>Profile Picture</FormLabel>
         <Input
           type="file"
@@ -208,12 +213,7 @@ const Signup = () => {
         onClick={submitHandler}
         isLoading={loading}
         isDisabled={
-          !name ||
-          !email ||
-          !password ||
-          !confirmPassword ||
-          passwordError ||
-          !pic
+          !name || !email || !password || !confirmPassword || passwordError
             ? true
             : false
         }

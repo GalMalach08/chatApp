@@ -31,7 +31,7 @@ const createChat = async (user, id) => {
         "users",
         "-password"
       );
-      return fullChat[0];
+      return fullChat;
     }
   } catch (err) {
     throw new Error(err);
@@ -139,6 +139,25 @@ const addUserToGroup = async (body) => {
   }
 };
 
+// Update users in the group
+const updateGroup = async (body) => {
+  try {
+    const { chatId, users, chatName } = body;
+
+    const newChat = await Chat.findByIdAndUpdate(
+      chatId,
+      { users, chatName },
+      { new: true }
+    )
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+    if (newChat) return newChat;
+    else throw new Error("Chat not found");
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 module.exports = {
   createChat,
   getChatsForUser,
@@ -146,4 +165,5 @@ module.exports = {
   renameChatGroup,
   removeUserFromGroup,
   addUserToGroup,
+  updateGroup,
 };

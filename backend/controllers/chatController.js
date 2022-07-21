@@ -64,6 +64,16 @@ const addUserToGroup = asyncHandler(async (req, res) => {
   }
 });
 
+// Update excisting group
+const updateGroup = asyncHandler(async (req, res) => {
+  try {
+    const chat = await chatService.updateGroup(req.body);
+    res.send({ chat });
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
+
 module.exports = {
   createOrGetChat,
   getChatsForUser,
@@ -71,4 +81,5 @@ module.exports = {
   createGroupChat,
   removeUserFromGroup,
   addUserToGroup,
+  updateGroup,
 };
