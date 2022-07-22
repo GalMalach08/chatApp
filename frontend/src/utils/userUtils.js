@@ -1,13 +1,6 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Badge } from "@chakra-ui/layout";
 import { useChatContext } from "../context/ChatProvider";
-const user = JSON.parse(localStorage.getItem("user")) || {};
-export const config = {
-  headers: {
-    "Content-type": "application/json",
-    Authorization: `Bearer ${user.token} `,
-  },
-};
 
 export const UserBadgeItem = ({ badgeUser, handleFunction, admin }) => {
   const { user } = useChatContext();

@@ -6,7 +6,6 @@ import CreateGroupModal from "../modals/CreateGroupModal";
 import { useChatContext } from "../../context/ChatProvider";
 // Utils
 import { getSender } from "../../utils/chatUtils";
-import { config } from "../../utils/userUtils";
 import { toastify } from "../../utils/notificationUtils";
 // Chakra UI
 import { Box, Button, Stack, Text } from "@chakra-ui/react";
@@ -15,7 +14,7 @@ import { AddIcon } from "@chakra-ui/icons";
 // Chat list section off the app
 const MyChats = () => {
   const [loggedUser, setloggeduser] = useState("");
-  const { selectedChat, setSelectedChat, user, chats, setChats } =
+  const { selectedChat, setSelectedChat, user, chats, setChats, config } =
     useChatContext();
 
   // Get all the users chats
@@ -26,7 +25,7 @@ const MyChats = () => {
         ...config,
       });
       const { chats } = await res.json();
-      setChats(chats);
+      chats ? setChats(chats) : setChats([]);
     } catch (error) {
       toastify(
         "Error Occured!",
@@ -92,37 +91,41 @@ const MyChats = () => {
           borderRadius="lg"
           overflowY="scroll"
         >
-          {chats.length > 0 ? (
-            <Stack overflowY="scroll">
-              {chats.map((chat) => (
-                <Box
-                  onClick={() => setSelectedChat(chat)}
-                  cursor="pointer"
-                  bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                  color={selectedChat === chat ? "white" : "black"}
-                  px={3}
-                  py={2}
-                  borderRadius="lg"
-                  key={chat._id}
-                >
-                  {/* Chat name */}
-                  <Text>
-                    {!chat.isGroupChat
-                      ? getSender(loggedUser, chat.users)
-                      : chat.chatName}
-                  </Text>
-                  {/* Chat latest message */}
-                  {chat.latestMessage && (
-                    <Text fontSize="xs">
-                      <b>{chat.latestMessage.sender.name} : </b>
-                      {chat.latestMessage.content.length > 50
-                        ? chat.latestMessage.content.substring(0, 51) + "..."
-                        : chat.latestMessage.content}
+          {chats ? (
+            chats.length > 0 ? (
+              <Stack overflowY="scroll">
+                {chats.map((chat) => (
+                  <Box
+                    onClick={() => setSelectedChat(chat)}
+                    cursor="pointer"
+                    bg={selectedChat._id === chat._id ? "#38B2AC" : "#E8E8E8"}
+                    color={selectedChat._id === chat._id ? "white" : "black"}
+                    px={3}
+                    py={2}
+                    borderRadius="lg"
+                    key={chat._id}
+                  >
+                    {/* Chat name */}
+                    <Text>
+                      {!chat.isGroupChat
+                        ? getSender(loggedUser, chat.users)
+                        : chat.chatName}
                     </Text>
-                  )}
-                </Box>
-              ))}
-            </Stack>
+                    {/* Chat latest message */}
+                    {chat.latestMessage && (
+                      <Text fontSize="xs">
+                        <b>{chat.latestMessage.sender.name} : </b>
+                        {chat.latestMessage.content.length > 50
+                          ? chat.latestMessage.content.substring(0, 51) + "..."
+                          : chat.latestMessage.content}
+                      </Text>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            ) : (
+              <div>No chats available</div>
+            )
           ) : (
             <ChatLoading />
           )}

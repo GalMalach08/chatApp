@@ -5,7 +5,6 @@ import { useHistory } from "react-router-dom";
 import ProfileModal from "../modals/ProfileModal";
 import SideDrawer from "./SideDrawer";
 // Utils
-import { config } from "../../utils/userUtils";
 import { toastify } from "../../utils/notificationUtils";
 // Context
 import { useChatContext } from "../../context/ChatProvider";
@@ -33,7 +32,7 @@ const Header = () => {
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   // Global states
-  const { user, setUserState } = useChatContext();
+  const { user, logOutUser, config } = useChatContext();
   // Utils
   const history = useHistory();
   // Modal disclosure
@@ -62,9 +61,8 @@ const Header = () => {
 
   // Logout the user
   const logOut = () => {
-    setUserState("");
+    logOutUser();
     history.push("/");
-    localStorage.removeItem("user");
   };
 
   return (

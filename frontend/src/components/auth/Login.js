@@ -2,7 +2,6 @@ import React, { useState } from "react";
 // React router dom
 import { useHistory } from "react-router-dom";
 // Utils
-import { config } from "../../utils/userUtils";
 import { toastify } from "../../utils/notificationUtils";
 // Context
 import { useChatContext } from "../../context/ChatProvider";
@@ -19,8 +18,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   // Global states
-  const { setUserState } = useChatContext();
-
+  const { setUserState, config, setConfigHeaders } = useChatContext();
   const history = useHistory();
 
   // Handle the show of the password
@@ -44,6 +42,7 @@ const Login = () => {
         toastify(error, "error");
       } else {
         toastify("Registration successful", "success");
+        setConfigHeaders(user.token);
         setUserState(user);
         localStorage.setItem("user", JSON.stringify(user));
         history.push("/chats");

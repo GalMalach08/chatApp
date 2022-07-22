@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 // Components
 import UserListItem from "../chat/UserListItem";
 // Utils
-import { config, UserBadgeItem } from "../../utils/userUtils";
+import { UserBadgeItem } from "../../utils/userUtils";
 import { toastify } from "../../utils/notificationUtils";
 // Context
 import { useChatContext } from "../../context/ChatProvider";
@@ -33,7 +33,8 @@ const UpdateGroupModal = ({ children }) => {
   const [usersInGroup, setUsersInGroup] = useState([]);
   const [loading, setLoading] = useState(false);
   // Global states
-  const { selectedChat, setChats, setSelectedChat, user } = useChatContext();
+  const { selectedChat, setChats, setSelectedChat, user, config } =
+    useChatContext();
   // Modal disclosure
   const { isOpen, onOpen, onClose } = useDisclosure();
 

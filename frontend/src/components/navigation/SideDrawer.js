@@ -2,8 +2,7 @@ import React, { useRef, useState } from "react";
 // Components
 import ChatLoading from "../loaders/ChatLoading";
 import UserListItem from "../chat/UserListItem";
-// Utils
-import { config } from "../../utils/userUtils";
+
 // Context
 import { useChatContext } from "../../context/ChatProvider";
 import { toastify } from "../../utils/notificationUtils";
@@ -32,14 +31,15 @@ const SideDrawer = ({
 }) => {
   // Local states
   const [loadingChat, setLoadingChat] = useState(false);
-  const { setSelectedChat, chats, setChats } = useChatContext();
+  // Global state
+  const { setSelectedChat, chats, setChats, config } = useChatContext();
   // Ref
   const btnRef = useRef();
-
   // Create chat that not excist or access chat that excist
   const createOrAccessChat = async (userId) => {
     try {
       setLoadingChat(true);
+
       const res = await fetch(`/api/chat`, {
         method: "POST",
         ...config,
