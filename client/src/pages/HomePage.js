@@ -11,15 +11,15 @@ import {
 } from "@chakra-ui/react";
 import Login from "../components/auth/Login";
 import Signup from "../components/auth/Signup";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      return history.push("/chats");
+      return navigate("/chats");
     }
   }, []);
 

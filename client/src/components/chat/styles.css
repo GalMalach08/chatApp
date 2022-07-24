@@ -1,0 +1,30 @@
+.messages {
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+.lottie{
+    width: 10% !important;
+
+}
+.badge_alert {
+    color: white !important;
+    width: 20px;
+    height: 1.2rem;
+    position: absolute;
+    bottom: 28px;
+    right: 9px;
+    transform: translate(25%, 25%);
+    border-radius: 50px !important;
+    padding: 1px;
+}
+.inner_badge {
+     position: relative;
+    height: 21px;
+    width: 22px;
+    font-size: 12px;
+    text-align: center;
+    margin: 0px 0px -45px 12px;
+    font-weight: bold;
+}

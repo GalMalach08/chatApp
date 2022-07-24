@@ -17,7 +17,7 @@ export const UserBadgeItem = ({ badgeUser, handleFunction, admin }) => {
       cursor={admin === user._id && admin !== badgeUser._id && "pointer"}
       onClick={handleFunction}
     >
-      {user.name}
+      {badgeUser.name}
       {admin === badgeUser._id && <span> (Admin)</span>}
       {admin === user._id ? (
         badgeUser._id !== user._id ? (

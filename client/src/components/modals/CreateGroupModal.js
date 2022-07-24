@@ -148,6 +148,12 @@ const CreateGroupModal = ({ children }) => {
             {/* Users that added to the group */}
             {loading && <Spinner m={2} />}
             <Box w="100%" d="flex" flexWrap="wrap">
+              <UserBadgeItem
+                key={user._id}
+                badgeUser={user}
+                handleFunction={() => deleteUserFromGroup(user._id)}
+                admin={user._id}
+              />
               {usersInGroup.map((user) => (
                 <UserBadgeItem
                   key={user._id}

@@ -19,9 +19,53 @@ app.use("/api/chat", chatRoute);
 // Message route
 const messageRoute = require("./routes/messageRoute");
 app.use("/api/message", messageRoute);
+// Notification route
+const notificationRoute = require("./routes/notificationRoute");
+app.use("/api/notification", notificationRoute);
 // Fall back routes
 app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`server runs on port ${PORT}`.yellow.bold));
+const server = app.listen(PORT, () =>
+  console.log(`server runs on port ${PORT}`.yellow.bold)
+);
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000, // if the connection not active for 60 sec close it
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Connected to socket io");
+
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+    socket.emit("connected");
+  });
+
+  socket.on("join chat", (roomId) => {
+    socket.join(roomId);
+    console.log(`user joined to room: ${roomId}`);
+  });
+
+  socket.on("typing", (room) => socket.in(room).emit("typing", room));
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
+  socket.on("new message", (newMessage) => {
+    let chat = newMessage.chat;
+    if (!chat.users) return console.log("chat.users not defined");
+
+    chat.users.forEach((user) => {
+      if (user._id === newMessage.sender._id) return;
+      socket.in(user._id).emit("message recived", newMessage);
+    });
+  });
+
+  socket.off("setup", (userData) => {
+    console.log("user disconnected");
+    socket.leave(userData._id);
+  });
+});

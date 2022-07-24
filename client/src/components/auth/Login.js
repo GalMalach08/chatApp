@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 // React router dom
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // Utils
 import { toastify } from "../../utils/notificationUtils";
 // Context
@@ -19,7 +19,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   // Global states
   const { setUserState, config, setConfigHeaders } = useChatContext();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // Handle the show of the password
   const handleClick = () => setShow(!show);
@@ -45,7 +45,7 @@ const Login = () => {
         setConfigHeaders(user.token);
         setUserState(user);
         localStorage.setItem("user", JSON.stringify(user));
-        history.push("/chats");
+        navigate("/chats");
       }
       setLoading(false);
     } catch (error) {

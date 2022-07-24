@@ -8,14 +8,26 @@ import { useChatContext } from "../../context/ChatProvider";
 import { getSender } from "../../utils/chatUtils";
 import { toastify } from "../../utils/notificationUtils";
 // Chakra UI
-import { Box, Button, Stack, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Stack, Text } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
+// Style
+import "./styles.css";
 
 // Chat list section off the app
 const MyChats = () => {
+  // Local state
   const [loggedUser, setloggeduser] = useState("");
-  const { selectedChat, setSelectedChat, user, chats, setChats, config } =
-    useChatContext();
+  // Global state
+  const {
+    selectedChat,
+    setSelectedChat,
+    user,
+    chats,
+    setChats,
+    config,
+    setNotification,
+    notification,
+  } = useChatContext();
 
   // Get all the users chats
   const getChats = async () => {
@@ -36,11 +48,64 @@ const MyChats = () => {
     }
   };
 
+  // Get all users notifications on load
+  const getNotifications = async () => {
+    try {
+      const res = await fetch(`/api/notification/?userId=${user._id}`, {
+        method: "GET",
+        ...config,
+      });
+      const { notifications } = await res.json();
+      console.log(notifications);
+      setNotification(notifications);
+    } catch (error) {
+      toastify(
+        "Error Occured!",
+        "error",
+        "bottom-left",
+        "Failed to Load the notification, Try to refresh the page"
+      );
+    }
+  };
+
+  // check if there is notifications and return them
+  const isNotifications = (chatId) => {
+    if (notification.length) {
+      const notificationsMes = notification.find(
+        (noti) => noti.noti.chat._id === chatId
+      );
+      if (notificationsMes) return notificationsMes.count;
+      return false;
+    }
+  };
+
+  const selectChat = async (chat) => {
+    setSelectedChat(chat);
+    const notiToDelete = notification.find(
+      (item) => item.noti.chat._id === chat._id
+    );
+    setNotification((prevState) =>
+      prevState.filter((item) => item.noti.chat._id !== chat._id)
+    );
+    await fetch("/api/notification", {
+      method: "DELETE",
+      ...config,
+      body: JSON.stringify({
+        notiId: notiToDelete._id,
+      }),
+    });
+  };
+
   // Activate the get chats func to get all the chats on page load
   useEffect(() => {
     setloggeduser(user);
     getChats();
+    getNotifications();
   }, []);
+
+  useEffect(() => {
+    isNotifications();
+  }, [notification]);
 
   return (
     <>
@@ -96,7 +161,9 @@ const MyChats = () => {
               <Stack overflowY="scroll">
                 {chats.map((chat) => (
                   <Box
-                    onClick={() => setSelectedChat(chat)}
+                    onClick={() => {
+                      selectChat(chat);
+                    }}
                     cursor="pointer"
                     bg={selectedChat._id === chat._id ? "#38B2AC" : "#E8E8E8"}
                     color={selectedChat._id === chat._id ? "white" : "black"}
@@ -105,12 +172,26 @@ const MyChats = () => {
                     borderRadius="lg"
                     key={chat._id}
                   >
-                    {/* Chat name */}
-                    <Text>
-                      {!chat.isGroupChat
-                        ? getSender(loggedUser, chat.users)
-                        : chat.chatName}
-                    </Text>
+                    <Box display="flex" justifyContent="space-between">
+                      {/* Chat name */}
+                      <Text>
+                        {!chat.isGroupChat
+                          ? getSender(loggedUser, chat.users)
+                          : chat.chatName}
+                      </Text>
+                      <Text>
+                        {isNotifications(chat._id) && (
+                          <Badge
+                            colorScheme="green"
+                            variant="solid"
+                            className="badge_alert inner_badge"
+                          >
+                            {isNotifications(chat._id)}
+                          </Badge>
+                        )}
+                      </Text>
+                    </Box>
+
                     {/* Chat latest message */}
                     {chat.latestMessage && (
                       <Text fontSize="xs">

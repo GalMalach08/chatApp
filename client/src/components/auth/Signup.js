@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 // React router dom
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // Utils
 import { toastify } from "../../utils/notificationUtils";
 // Context
@@ -31,7 +31,7 @@ const Signup = () => {
   // Global states
   const { setUserState, config, setConfigHeaders } = useChatContext();
   // Utils
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // Handle the image- upload to cloudinary and make it a string
   const postDetails = async (pic) => {
@@ -85,7 +85,7 @@ const Signup = () => {
         setUserState(user);
         setConfigHeaders(user.token);
         localStorage.setItem("user", JSON.stringify(user));
-        history.push("/chats");
+        navigate("/chats");
       }
       setLoading(false);
     } catch (error) {

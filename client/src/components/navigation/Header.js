@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 // React router dom
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // Components
 import ProfileModal from "../modals/ProfileModal";
 import SideDrawer from "./SideDrawer";
 // Utils
 import { toastify } from "../../utils/notificationUtils";
+import { getSender } from "../../utils/chatUtils";
 // Context
 import { useChatContext } from "../../context/ChatProvider";
 // Chakra UI
@@ -22,8 +23,12 @@ import {
   MenuItem,
   MenuDivider,
   Avatar,
+  Badge,
 } from "@chakra-ui/react";
 import { SearchIcon, BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { MdWhatshot } from "react-icons/md";
+// Style
+import "./style.css";
 
 // The header of the app
 const Header = () => {
@@ -32,9 +37,16 @@ const Header = () => {
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   // Global states
-  const { user, logOutUser, config } = useChatContext();
+  const {
+    user,
+    logOutUser,
+    config,
+    setSelectedChat,
+    notification,
+    setNotification,
+  } = useChatContext();
   // Utils
-  const history = useHistory();
+  const navigate = useNavigate();
   // Modal disclosure
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -59,10 +71,24 @@ const Header = () => {
     }
   };
 
+  // Handle the click on notifications
+  const notificationClick = (chat, notif) => {
+    setSelectedChat(chat);
+    setNotification((prevState) =>
+      prevState.filter((item) => item.noti !== notif)
+    );
+  };
+
+  const sumNotifications = () =>
+    notification.reduce(
+      (accumulator, current) => accumulator + current.count,
+      0
+    );
+
   // Logout the user
   const logOut = () => {
     logOutUser();
-    history.push("/");
+    navigate("/");
   };
 
   return (
@@ -89,21 +115,68 @@ const Header = () => {
         </Tooltip>
 
         {/* Header title */}
-        <Text fontSize="2xl" fontFamily="Work sans">
-          Talk-A-Tive
+        <Text
+          fontSize="2xl"
+          fontFamily="Work sans"
+          display="flex"
+          alignItems="center"
+        >
+          <span> Talk-A-Tive</span>
+          <Icon as={MdWhatshot} w={6} h={6} mx={3} />
         </Text>
 
         {/* Right side of the header */}
         <div>
+          {/* notification button */}
           <Menu>
-            <MenuButton p={1}>
-              <BellIcon fontSize="2xl" m={1} />
+            <MenuButton p={1} mr={3} style={{ position: "relative" }}>
+              <BellIcon fontSize="3xl" m={1} />
+              {notification.length !== 0 && (
+                <Badge
+                  colorScheme="green"
+                  variant="solid"
+                  className="alert_badge"
+                >
+                  {sumNotifications()}
+                </Badge>
+              )}
             </MenuButton>
-            <MenuList></MenuList>
+            <MenuList pl={2}>
+              {!notification.length
+                ? "No new messages"
+                : notification.map((notif) => (
+                    <span key={notif.noti._id}>
+                      <MenuItem
+                        onClick={() =>
+                          notificationClick(notif.noti.chat, notif.noti)
+                        }
+                      >
+                        <div>
+                          {notif.noti.chat.isGroupChat
+                            ? `New message from ${notif.noti.chat.chatName}`
+                            : `New message from ${getSender(
+                                user,
+                                notif.noti.chat.users
+                              )} `}
+                        </div>
+
+                        <Badge
+                          colorScheme="green"
+                          variant="solid"
+                          className="alert_badge inner_badge"
+                        >
+                          {" "}
+                          {notif.count}
+                        </Badge>
+                      </MenuItem>
+                      <MenuDivider />
+                    </span>
+                  ))}
+            </MenuList>
           </Menu>
 
-          {/* Account button */}
           <Menu>
+            {/* Account button */}
             <MenuButton
               as={Button}
               rightIcon={<ChevronDownIcon fontSize="2xl" m={1} />}
