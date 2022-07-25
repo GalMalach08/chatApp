@@ -26,7 +26,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { SearchIcon, BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { MdWhatshot } from "react-icons/md";
+// import { MdWhatshot } from "react-icons/md";
 // Style
 import "./style.css";
 
@@ -122,7 +122,7 @@ const Header = () => {
           alignItems="center"
         >
           <span> Talk-A-Tive</span>
-          <Icon as={MdWhatshot} w={6} h={6} mx={3} />
+          {/* <Icon as={MdWhatshot} w={6} h={6} mx={3} /> */}
         </Text>
 
         {/* Right side of the header */}
