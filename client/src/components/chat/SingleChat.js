@@ -31,7 +31,7 @@ import { GoPrimitiveDot } from "react-icons/go";
 
 // Socket io
 import io from "socket.io-client";
-const ENDPOINT = "https://mern-talk-a-tive-2022.herokuapp.com/";
+const ENDPOINT = "https://talk-a-tive-2022.herokuapp.com/";
 let socket, selectedChatCompare, notificaionCompare;
 
 // Shows single chat
