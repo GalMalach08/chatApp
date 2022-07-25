@@ -114,6 +114,7 @@ const Header = () => {
           w={{ sm: "100%", md: "auto" }}
           justifyContent="center"
           marginBottom={{ base: "10px", sm: "0px" }}
+          m="auto"
         >
           <span> Talk-A-Tive</span>
           <Icon as={MdWhatshot} w={6} h={6} mx={3} />

@@ -160,12 +160,12 @@ const CreateGroupModal = ({ children }) => {
                 handleFunction={() => deleteUserFromGroup(user._id)}
                 admin={user._id}
               />
-              {usersInGroup.map((user) => (
+              {usersInGroup.map((badgeUser) => (
                 <UserBadgeItem
-                  key={user._id}
-                  badgeUser={user}
-                  handleFunction={() => deleteUserFromGroup(user._id)}
-                  admin={false}
+                  key={badgeUser._id}
+                  badgeUser={badgeUser}
+                  handleFunction={() => deleteUserFromGroup(badgeUser._id)}
+                  admin={user._id}
                 />
               ))}
             </Box>
