@@ -1,7 +1,6 @@
 const express = require("express");
 const { connectDB } = require("./db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
-const path = require("path");
 require("dotenv").config();
 require("colors");
 
