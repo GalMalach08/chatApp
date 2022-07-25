@@ -1,6 +1,7 @@
 const express = require("express");
 const { connectDB } = require("./db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const path = require("path");
 require("dotenv").config();
 require("colors");
 
@@ -26,11 +27,23 @@ app.use("/api/notification", notificationRoute);
 app.use(notFound);
 app.use(errorHandler);
 
+// Production
+app.use(express.static("client/build"));
+if (process.env.NODE_ENV === "production") {
+  const path = require("path");
+
+  app.get("/*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../client", "build", "index.html"));
+  });
+}
+const host = "0.0.0.0";
 const PORT = process.env.PORT || 3001;
-const server = app.listen(PORT, () =>
+
+const server = app.listen(PORT, host, () =>
   console.log(`server runs on port ${PORT}`.yellow.bold)
 );
 
+// Socket io
 let connectedUsers = [];
 const io = require("socket.io")(server, {
   pingTimeout: 60000, // if the connection not active for 60 sec close it
