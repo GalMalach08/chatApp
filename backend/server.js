@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const { connectDB } = require("./db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 require("dotenv").config();
@@ -22,19 +23,29 @@ app.use("/api/message", messageRoute);
 // Notification route
 const notificationRoute = require("./routes/notificationRoute");
 app.use("/api/notification", notificationRoute);
+
+// --------------------------deployment------------------------------
+
+const __dirname1 = path.resolve();
+
+if (process.env.NODE_ENV === "production") {
+  console.log("production");
+  app.use(express.static(path.join(__dirname1, "/client/build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname1, "client", "build", "index.html"))
+  );
+} else {
+  console.log("local");
+  app.get("/", (req, res) => {
+    res.send("API is running..");
+  });
+}
+
+// --------------------------deployment------------------------------
 // Fall back routes
 app.use(notFound);
 app.use(errorHandler);
-
-// Production
-app.use(express.static("client/build"));
-if (process.env.NODE_ENV === "production") {
-  const path = require("path");
-
-  app.get("/*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../client", "build", "index.html"));
-  });
-}
 
 const PORT = process.env.PORT || 3001;
 
