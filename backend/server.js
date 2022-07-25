@@ -31,6 +31,7 @@ const server = app.listen(PORT, () =>
   console.log(`server runs on port ${PORT}`.yellow.bold)
 );
 
+let connectedUsers = [];
 const io = require("socket.io")(server, {
   pingTimeout: 60000, // if the connection not active for 60 sec close it
   cors: {
@@ -43,7 +44,10 @@ io.on("connection", (socket) => {
 
   socket.on("setup", (userData) => {
     socket.join(userData._id);
-    socket.emit("connected");
+    if (!connectedUsers.find((user) => user._id === userData._id)) {
+      connectedUsers.push(userData);
+    }
+    io.emit("connected", connectedUsers);
   });
 
   socket.on("join chat", (roomId) => {
@@ -64,8 +68,10 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.off("setup", (userData) => {
+  socket.on("disconnectUser", (userData) => {
     console.log("user disconnected");
-    socket.leave(userData._id);
+    connectedUsers = connectedUsers.filter((user) => user._id !== userData._id);
+    socket.disconnect();
+    io.emit("disconnected", connectedUsers);
   });
 });

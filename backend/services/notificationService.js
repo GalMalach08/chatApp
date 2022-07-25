@@ -64,6 +64,9 @@ const updateNotification = async (body) => {
     fullnotification = await User.populate(fullnotification, {
       path: "noti.sender",
     });
+    fullnotification = await User.populate(fullnotification, {
+      path: "noti.chat.users",
+    });
 
     if (fullnotification) return fullnotification;
     else throw new Error("Error occured, notification didnt uploaded");

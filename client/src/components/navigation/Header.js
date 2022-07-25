@@ -145,7 +145,7 @@ const Header = () => {
               {!notification.length
                 ? "No new messages"
                 : notification.map((notif) => (
-                    <span key={notif.noti._id}>
+                    <span key={notif._id}>
                       <MenuItem
                         onClick={() =>
                           notificationClick(notif.noti.chat, notif.noti)

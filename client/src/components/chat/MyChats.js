@@ -8,8 +8,9 @@ import { useChatContext } from "../../context/ChatProvider";
 import { getSender } from "../../utils/chatUtils";
 import { toastify } from "../../utils/notificationUtils";
 // Chakra UI
-import { Badge, Box, Button, Stack, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Stack, Text, Icon } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
+import { GoPrimitiveDot } from "react-icons/go";
 // Style
 import "./styles.css";
 
@@ -27,6 +28,7 @@ const MyChats = () => {
     config,
     setNotification,
     notification,
+    connectedUsers,
   } = useChatContext();
 
   // Get all the users chats
@@ -56,7 +58,6 @@ const MyChats = () => {
         ...config,
       });
       const { notifications } = await res.json();
-      console.log(notifications);
       setNotification(notifications);
     } catch (error) {
       toastify(
@@ -79,21 +80,39 @@ const MyChats = () => {
     }
   };
 
+  // Check if the user that recive the message is connected
+  const checkIfUserIsConnected = (chat, connectedUsers) => {
+    for (let i = 0; i < chat.users.length; i++) {
+      for (let j = 0; j < connectedUsers.length; j++) {
+        if (
+          connectedUsers[j]._id === chat.users[i]._id &&
+          connectedUsers[j]._id !== user._id
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Select the chat
   const selectChat = async (chat) => {
     setSelectedChat(chat);
     const notiToDelete = notification.find(
       (item) => item.noti.chat._id === chat._id
     );
-    setNotification((prevState) =>
-      prevState.filter((item) => item.noti.chat._id !== chat._id)
-    );
-    await fetch("/api/notification", {
-      method: "DELETE",
-      ...config,
-      body: JSON.stringify({
-        notiId: notiToDelete._id,
-      }),
-    });
+    if (notiToDelete) {
+      setNotification((prevState) =>
+        prevState.filter((item) => item.noti.chat._id !== chat._id)
+      );
+      await fetch("/api/notification", {
+        method: "DELETE",
+        ...config,
+        body: JSON.stringify({
+          notiId: notiToDelete._id,
+        }),
+      });
+    }
   };
 
   // Activate the get chats func to get all the chats on page load
@@ -114,7 +133,10 @@ const MyChats = () => {
           flexDirection: "column",
           alignItems: "center",
         }}
-        display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
+        display={{
+          base: selectedChat ? "none" : "flex",
+          md: "flex",
+        }}
         p={3}
         bg="white"
         w={{ base: "100%", md: "31%" }}
@@ -136,7 +158,11 @@ const MyChats = () => {
           <CreateGroupModal>
             <Button
               d="flex"
-              fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+              fontSize={{
+                base: "17px",
+                md: "10px",
+                lg: "17px",
+              }}
               rightIcon={<AddIcon w={3} h={3} />}
               mt={1}
             >
@@ -171,6 +197,10 @@ const MyChats = () => {
                     py={2}
                     borderRadius="lg"
                     key={chat._id}
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="space-between"
+                    h="70px"
                   >
                     <Box display="flex" justifyContent="space-between">
                       {/* Chat name */}
@@ -194,12 +224,31 @@ const MyChats = () => {
 
                     {/* Chat latest message */}
                     {chat.latestMessage && (
-                      <Text fontSize="xs">
-                        <b>{chat.latestMessage.sender.name} : </b>
-                        {chat.latestMessage.content.length > 50
-                          ? chat.latestMessage.content.substring(0, 51) + "..."
-                          : chat.latestMessage.content}
-                      </Text>
+                      <Box display="flex" justifyContent="space-between">
+                        <Text fontSize="xs">
+                          <b>{chat.latestMessage.sender.name} : </b>
+                          {chat.latestMessage.content.length > 50
+                            ? chat.latestMessage.content.substring(0, 51) +
+                              "..."
+                            : chat.latestMessage.content}
+                        </Text>
+                        {!chat.isGroupChat && (
+                          <Text fontSize="xs">
+                            {checkIfUserIsConnected(chat, connectedUsers) ? (
+                              <span>
+                                connected{" "}
+                                <Icon as={GoPrimitiveDot} color="green" />
+                              </span>
+                            ) : (
+                              <span>
+                                {" "}
+                                disconnected{" "}
+                                <Icon as={GoPrimitiveDot} color="red" />
+                              </span>
+                            )}
+                          </Text>
+                        )}
+                      </Box>
                     )}
                   </Box>
                 ))}

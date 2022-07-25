@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 const ChatContext = createContext();
+
 export const useChatContext = () => useContext(ChatContext);
 
 const ChatProvider = ({ children }) => {
@@ -9,15 +9,21 @@ const ChatProvider = ({ children }) => {
   const [selectedChat, setSelectedChat] = useState("");
   const [chats, setChats] = useState();
   const [notification, setNotification] = useState([]);
+  const [connectedUsers, setConnectedUsers] = useState([]);
+  const [socket, setSocket] = useState();
+
   const [config, setConfig] = useState({
     headers: { "Content-type": "application/json" },
   });
   const navigate = useNavigate();
 
   const logOutUser = () => {
+    socket.emit("disconnectUser", user);
     setUser("");
     setSelectedChat("");
     setChats("");
+    setNotification([]);
+    setConnectedUsers([]);
     localStorage.removeItem("user");
   };
 
@@ -34,6 +40,7 @@ const ChatProvider = ({ children }) => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
+
     if (!user) {
       navigate("/");
     } else {
@@ -56,6 +63,9 @@ const ChatProvider = ({ children }) => {
         setConfigHeaders,
         notification,
         setNotification,
+        setSocket,
+        setConnectedUsers,
+        connectedUsers,
       }}
     >
       {children}

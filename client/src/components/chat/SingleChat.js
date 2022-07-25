@@ -27,6 +27,7 @@ import { AiFillEye } from "react-icons/ai";
 import { toastify } from "../../utils/notificationUtils";
 import ScrollableChat from "./ScrollableChat";
 import { IoMdSend } from "react-icons/io";
+import { GoPrimitiveDot } from "react-icons/go";
 
 // Socket io
 import io from "socket.io-client";
@@ -51,7 +52,29 @@ const SingleChat = () => {
     setNotification,
     notification,
     setChats,
+    setSocket,
+    setConnectedUsers,
+    connectedUsers,
   } = useChatContext();
+
+  // Get all the users chats
+  const getChats = async () => {
+    try {
+      const res = await fetch("/api/chat", {
+        method: "GET",
+        ...config,
+      });
+      const { chats } = await res.json();
+      chats ? setChats(chats) : setChats([]);
+    } catch (error) {
+      toastify(
+        "Error Occured!",
+        "error",
+        "bottom-left",
+        "Failed to Load the chats, Try to refresh the page"
+      );
+    }
+  };
 
   // Send the message and add to the database
   const sendMessage = async (e) => {
@@ -71,14 +94,19 @@ const SingleChat = () => {
           const { message } = await res.json();
           setChats((prevState) =>
             prevState.map((chat) => {
-              if (chat._id === message.chat._id)
+              if (chat._id === message.chat._id) {
                 return { ...chat, latestMessage: message };
-              else return chat;
+              } else return chat;
             })
           );
-          setNewMessage("");
           setMessages((prevState) => [...prevState, message]);
-          socket.emit("new message", message);
+          await getChats();
+
+          if (checkIfUserIsConnected(message.chat, connectedUsers)) {
+            socket.emit("new message", message);
+          } else {
+            createNotificationForDisconnectUser(message);
+          }
         } else {
           toastify("Please enter a message", "error");
         }
@@ -88,6 +116,22 @@ const SingleChat = () => {
     }
   };
 
+  // Check if the user that recive the message is connected
+  const checkIfUserIsConnected = (chat, connectedUsers) => {
+    for (let i = 0; i < chat.users.length; i++) {
+      for (let j = 0; j < connectedUsers.length; j++) {
+        if (
+          connectedUsers[j]._id === chat.users[i]._id &&
+          connectedUsers[j]._id !== user._id
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Get all users message
   const getAllMessages = async () => {
     try {
       if (!selectedChat) return;
@@ -105,6 +149,7 @@ const SingleChat = () => {
     }
   };
 
+  // Check if the user is typing
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 
@@ -125,9 +170,53 @@ const SingleChat = () => {
     }, 3000);
   };
 
+  // Create notification for unconnected users
+  const createNotificationForDisconnectUser = async (newMessage) => {
+    try {
+      const userId = getFullSender(user, newMessage.chat.users)._id;
+      const res = await fetch(`/api/notification/?userId=${userId}`, {
+        method: "GET",
+        ...config,
+      });
+      const { notifications } = await res.json();
+      const notificationExcist = notifications.find(
+        (noti) => noti.noti.chat._id === newMessage.chat._id
+      );
+      if (!notifications || !notificationExcist) {
+        await fetch("/api/notification", {
+          method: "POST",
+          ...config,
+          body: JSON.stringify({
+            noti: newMessage._id,
+            count: 1,
+            user: userId,
+          }),
+        });
+      } else {
+        await fetch("/api/notification", {
+          method: "PUT",
+          ...config,
+          body: JSON.stringify({
+            notiId: notificationExcist._id,
+          }),
+        });
+      }
+    } catch (error) {
+      toastify(
+        "Error Occured!",
+        "error",
+        "bottom-left",
+        "Failed to Load the notification, Try to refresh the page"
+      );
+    }
+  };
+
+  // Create notification for connected users
   const createNotification = async (newMessage) => {
     const notificationExcist = notificaionCompare.find(
-      (noti) => noti.noti.sender._id === newMessage.sender._id
+      (noti) =>
+        noti.noti.sender._id === newMessage.sender._id &&
+        noti.noti.chat._id === newMessage.chat._id
     );
     if (notificationExcist) {
       // If the notification from this user is excist just increase the count by one
@@ -141,7 +230,10 @@ const SingleChat = () => {
       const data = await res.json();
       setNotification(
         notificaionCompare.map((noti) => {
-          if (data.notification.noti.sender._id === newMessage.sender._id) {
+          if (
+            data.notification.noti.sender._id === newMessage.sender._id &&
+            noti.noti.chat._id === newMessage.chat._id
+          ) {
             return data.notification;
           }
           return noti;
@@ -158,15 +250,19 @@ const SingleChat = () => {
         }),
       });
       const data = await res.json();
-      setNotification([data.notification, ...notification]); // else add the notification to the state
+      setNotification([data.notification, ...notificaionCompare]); // else add the notification to the state
     }
   };
 
   // Socket io connection
   useEffect(() => {
     socket = io(ENDPOINT);
+    setSocket(socket);
     socket.emit("setup", user);
-    socket.on("connected", () => setSocketConnected(true));
+    socket.on("connected", (connectedUsers) => {
+      setConnectedUsers(connectedUsers);
+      setSocketConnected(true);
+    });
     socket.on("typing", (room) => {
       if (room === selectedChatCompare._id) setIsTyping(true);
     });
@@ -181,13 +277,10 @@ const SingleChat = () => {
       } else {
         setMessages((prevState) => [...prevState, newMessage]);
       }
-      setChats((prevState) =>
-        prevState.map((chat) => {
-          if (chat._id === newMessage.chat._id)
-            return { ...chat, latestMessage: newMessage };
-          else return chat;
-        })
-      );
+      getChats();
+    });
+    socket.on("disconnected", (connectedUsers) => {
+      setConnectedUsers(connectedUsers);
     });
   }, []);
 
@@ -222,7 +315,20 @@ const SingleChat = () => {
             />
             {!selectedChat.isGroupChat ? (
               <>
-                {getSender(user, selectedChat.users).toUpperCase()}
+                <div>
+                  {getSender(user, selectedChat.users).toUpperCase()}{" "}
+                  {checkIfUserIsConnected(selectedChat, connectedUsers) ? (
+                    <span className="connected">
+                      connected <Icon as={GoPrimitiveDot} color="green" />
+                    </span>
+                  ) : (
+                    <span className="connected">
+                      {" "}
+                      disconnected <Icon as={GoPrimitiveDot} color="red" />
+                    </span>
+                  )}
+                </div>
+
                 <ProfileModal user={getFullSender(user, selectedChat.users)}>
                   <Button>
                     <Icon as={AiFillEye} w={6} h={6} />

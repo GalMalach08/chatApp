@@ -4,7 +4,10 @@ import { Box } from "@chakra-ui/react";
 import Header from "../components/navigation/Header";
 import MyChats from "../components/chat/MyChats";
 import ChatBox from "../components/chat/ChatBox";
+import { toastify } from "../utils/notificationUtils";
 const ChatPage = () => {
+  // Global state
+
   const { user } = useChatContext();
 
   useEffect(() => {}, []);
