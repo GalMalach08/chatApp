@@ -33,8 +33,13 @@ const UpdateGroupModal = ({ children }) => {
   const [usersInGroup, setUsersInGroup] = useState([]);
   const [loading, setLoading] = useState(false);
   // Global states
-  const { selectedChat, setChats, setSelectedChat, user, config } =
-    useChatContext();
+  const {
+    selectedChat,
+    setChats,
+    setSelectedChat,
+    user,
+    config,
+  } = useChatContext();
   // Modal disclosure
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -148,15 +153,21 @@ const UpdateGroupModal = ({ children }) => {
     <>
       <span onClick={onOpen}>{children}</span>
 
-      <Modal size="lg" onClose={closeModal} isOpen={isOpen} isCentered>
+      <Modal
+        size={{ base: "xs", sm: "md", md: "xl" }}
+        onClose={closeModal}
+        isOpen={isOpen}
+        isCentered
+      >
         <ModalOverlay />
         <ModalContent>
           {/* Modal title- chat name */}
           <ModalHeader
-            fontSize="40px"
+            fontSize={{ base: "30px", sm: "40px" }}
             fontFamily="Work sans"
             style={{ display: "flex" }}
             justifyContent="center"
+            mt={2}
           >
             {selectedChat.chatName}
           </ModalHeader>
@@ -222,7 +233,11 @@ const UpdateGroupModal = ({ children }) => {
           </ModalBody>
 
           {/* Modal footer */}
-          <ModalFooter display="flex" justifyContent="space-around">
+          <ModalFooter
+            display="flex"
+            justifyContent="space-around"
+            flexWrap="wrap"
+          >
             <Button
               isDisabled={!chatName || usersInGroup.length < 1 ? true : false}
               h={10}
@@ -239,6 +254,7 @@ const UpdateGroupModal = ({ children }) => {
               w={40}
               colorScheme="red"
               onClick={leaveGroup}
+              mt={{ base: 3, sm: 0 }}
             >
               Leave Group
             </Button>

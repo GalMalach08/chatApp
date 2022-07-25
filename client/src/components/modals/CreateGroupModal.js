@@ -105,12 +105,18 @@ const CreateGroupModal = ({ children }) => {
     <>
       <span onClick={onOpen}>{children}</span>
 
-      <Modal size="lg" onClose={onClose} isOpen={isOpen} isCentered>
+      <Modal
+        size={{ base: "xs", sm: "md", md: "lg" }}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered
+      >
         <ModalOverlay />
         <ModalContent>
           {/* Modal title */}
           <ModalHeader
-            fontSize="40px"
+            mt={3}
+            fontSize={{ base: "30px", sm: "40px" }}
             fontFamily="Work sans"
             style={{ display: "flex" }}
             justifyContent="center"

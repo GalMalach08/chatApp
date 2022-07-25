@@ -24,6 +24,7 @@ import {
   MenuDivider,
   Avatar,
   Badge,
+  Divider,
 } from "@chakra-ui/react";
 import { SearchIcon, BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { MdWhatshot } from "react-icons/md";
@@ -94,39 +95,42 @@ const Header = () => {
   return (
     <>
       <Box
-        style={{ display: "flex" }}
+        display="flex"
         justifyContent="space-between"
         alignItems="center"
+        flexWrap={{ base: "wrap" }}
         bg="white"
         w="100%"
         p="5px 10px 5px 10px"
         borderWidth="5px"
       >
-        {/* Left side of the header */}
-        <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
-          <Button variant="ghost" onClick={onOpen}>
-            <Icon>
-              <SearchIcon />
-            </Icon>
-            <Text d={{ base: "none", md: "flex" }} px="4">
-              Search user
-            </Text>
-          </Button>
-        </Tooltip>
-
         {/* Header title */}
         <Text
           fontSize="2xl"
           fontFamily="Work sans"
           display="flex"
           alignItems="center"
+          order={{ sm: "0", md: "1" }}
+          w={{ sm: "100%", md: "auto" }}
+          justifyContent="center"
+          marginBottom={{ base: "10px", sm: "0px" }}
         >
           <span> Talk-A-Tive</span>
           <Icon as={MdWhatshot} w={6} h={6} mx={3} />
         </Text>
+        <Divider mb={2} />
+        {/* Left side of the header */}
+        <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
+          <Button variant="ghost" onClick={onOpen}>
+            <Icon>
+              <SearchIcon />
+            </Icon>
+            <Text px="4">Search user</Text>
+          </Button>
+        </Tooltip>
 
         {/* Right side of the header */}
-        <div>
+        <Text order="2">
           {/* notification button */}
           <Menu>
             <MenuButton p={1} mr={3} style={{ position: "relative" }}>
@@ -178,6 +182,11 @@ const Header = () => {
           <Menu>
             {/* Account button */}
             <MenuButton
+              transition="all 0.2s"
+              borderRadius="md"
+              borderWidth="1px"
+              _hover={{ bg: "gray.400" }}
+              _expanded={{ bg: "gray.400" }}
               as={Button}
               rightIcon={<ChevronDownIcon fontSize="2xl" m={1} />}
               p={1}
@@ -197,7 +206,7 @@ const Header = () => {
               <MenuItem onClick={logOut}>Logout</MenuItem>
             </MenuList>
           </Menu>
-        </div>
+        </Text>
 
         {/* SideDrawer component */}
         <SideDrawer

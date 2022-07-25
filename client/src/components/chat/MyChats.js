@@ -223,8 +223,8 @@ const MyChats = () => {
                     </Box>
 
                     {/* Chat latest message */}
-                    {chat.latestMessage && (
-                      <Box display="flex" justifyContent="space-between">
+                    <Box display="flex" justifyContent="space-between">
+                      {chat.latestMessage ? (
                         <Text fontSize="xs">
                           <b>{chat.latestMessage.sender.name} : </b>
                           {chat.latestMessage.content.length > 50
@@ -232,24 +232,26 @@ const MyChats = () => {
                               "..."
                             : chat.latestMessage.content}
                         </Text>
-                        {!chat.isGroupChat && (
-                          <Text fontSize="xs">
-                            {checkIfUserIsConnected(chat, connectedUsers) ? (
-                              <span>
-                                connected{" "}
-                                <Icon as={GoPrimitiveDot} color="green" />
-                              </span>
-                            ) : (
-                              <span>
-                                {" "}
-                                disconnected{" "}
-                                <Icon as={GoPrimitiveDot} color="red" />
-                              </span>
-                            )}
-                          </Text>
-                        )}
-                      </Box>
-                    )}
+                      ) : (
+                        <div></div>
+                      )}
+                      {!chat.isGroupChat && (
+                        <Text fontSize="xs">
+                          {checkIfUserIsConnected(chat, connectedUsers) ? (
+                            <span>
+                              connected{" "}
+                              <Icon as={GoPrimitiveDot} color="green" />
+                            </span>
+                          ) : (
+                            <span>
+                              {" "}
+                              disconnected{" "}
+                              <Icon as={GoPrimitiveDot} color="red" />
+                            </span>
+                          )}
+                        </Text>
+                      )}
+                    </Box>
                   </Box>
                 ))}
               </Stack>

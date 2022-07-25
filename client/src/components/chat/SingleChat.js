@@ -299,7 +299,7 @@ const SingleChat = () => {
         <>
           {/* If there is selected Chat */}
           <Text
-            fontSize={{ base: "28px", md: "30px" }}
+            fontSize={{ base: "20px", md: "30px" }}
             pb={3}
             px={2}
             w="100%"
@@ -315,19 +315,23 @@ const SingleChat = () => {
             />
             {!selectedChat.isGroupChat ? (
               <>
-                <div>
+                <Box
+                  display="flex"
+                  flexDirection={{ base: "column", md: "row" }}
+                  alignItems="center"
+                >
                   {getSender(user, selectedChat.users).toUpperCase()}{" "}
                   {checkIfUserIsConnected(selectedChat, connectedUsers) ? (
-                    <span className="connected">
+                    <Text fontSize={{ base: "15px", md: "25px" }} m={[0, 3]}>
                       connected <Icon as={GoPrimitiveDot} color="green" />
-                    </span>
+                    </Text>
                   ) : (
-                    <span className="connected">
+                    <Text fontSize={{ base: "15px", md: "25px" }} m={[0, 3]}>
                       {" "}
                       disconnected <Icon as={GoPrimitiveDot} color="red" />
-                    </span>
+                    </Text>
                   )}
-                </div>
+                </Box>
 
                 <ProfileModal user={getFullSender(user, selectedChat.users)}>
                   <Button>
@@ -337,7 +341,10 @@ const SingleChat = () => {
               </>
             ) : (
               <>
-                {selectedChat.chatName.toUpperCase()}
+                <Box textAlign="center">
+                  {selectedChat.chatName.toUpperCase()}
+                </Box>
+
                 <UpdateGroupModal>
                   <Button>
                     <Icon as={AiFillEye} w={6} h={6} />
