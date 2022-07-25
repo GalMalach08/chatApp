@@ -13,6 +13,7 @@
     "colors": "^1.4.0",
     "dotenv": "^16.0.1",
     "express-async-handler": "^1.2.0",
+    "exrpess": "^0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.4.5",
     "socket.io": "^4.5.1"
